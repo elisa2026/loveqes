@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semangat UTS Qes! ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&family=Lora:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            color: #4a4a4a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 18px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+        }
+
+        .login-box {
+            text-align: center;
+            padding: 10px 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ff7eb3;
+            border-radius: 12px;
+            outline: none;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .input-field:focus {
+            border-color: #ff4757;
+        }
+
+        .game-map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 10px 0 15px 0;
+            background: linear-gradient(180deg, #fff0f3 0%, #e8f5e9 100%);
+            border-radius: 20px;
+            border: 2px dashed #ff7eb3;
+            overflow: hidden;
+        }
+
+        .map-path-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .level-node {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ccc;
+            border: 3px solid #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #node-1 { bottom: 15px; left: 12%; background: linear-gradient(135deg, #ff4757, #ff758c); }
+        #node-2 { bottom: 80px; right: 15%; background: #ccc; }
+        #node-3 { bottom: 145px; left: 15%; background: #ccc; }
+        #node-4 { bottom: 210px; right: 15%; background: #ccc; }
+        #node-5 { bottom: 275px; left: 15%; background: #ccc; }
+        #node-6 { top: 15px; left: 50%; transform: translateX(-50%); background: #ccc; width: 58px; height: 58px; font-size: 1.4rem; }
+
+        .level-node.unlocked {
+            background: linear-gradient(135deg, #ff4757, #ff758c) !important;
+            animation: bounce 1.5s infinite;
+        }
+
+        .level-node.completed {
+            background: linear-gradient(135deg, #2e7d32, #66bb6a) !important;
+            box-shadow: 0 0 10px rgba(46, 125, 50, 0.4);
+        }
+
+        .level-node.locked {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        #node-6.unlocked {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 2.5rem;
+            color: #ff4757;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: #ff4757;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        p {
+            font-size: 0.82rem;
+            text-align: center;
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .reminder-box {
+            background: #fff0f3;
+            border-left: 4px solid #ff4757;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin: 8px 0 12px 0;
+            font-size: 0.8rem;
+            color: #4a4a4a;
+            text-align: left;
+        }
+
+        .badge-level {
+            display: inline-block;
+            background: #ff4757;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 15px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .book-container {
+            perspective: 1000px;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        .book {
+            width: 100%;
+            height: 160px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        .book-cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #8b4513;
+            color: #ffd700;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            backface-visibility: hidden;
+            z-index: 2;
+        }
+
+        .book-inside {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #fffaf0;
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .book-text {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 0.88rem;
+            color: #4a3525;
+            line-height: 1.5;
+        }
+
+        .book-ref {
+            font-weight: 700;
+            font-style: normal;
+            color: #8b4513;
+            margin-top: 6px;
+            font-size: 0.82rem;
+        }
+
+        .chest-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .chest-card {
+            background: #fff0f3;
+            border: 2px dashed #ff4757;
+            border-radius: 12px;
+            padding: 15px 5px;
+            font-size: 2.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chest-card:hover {
+            transform: scale(1.05);
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .quiz-card {
+            background: #f9f9f9;
+            border: 2px solid #ff7eb3;
+            border-radius: 10px;
+            padding: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .quiz-img-container {
+            width: 100%;
+            height: 90px;
+            background: #fff0f3;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .quiz-label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #ff4757;
+            margin-top: 4px;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .memory-card {
+            height: 65px;
+            background: #ff9a9e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: white;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .memory-card.flipped {
+            background: #fff;
+            border: 2px solid #ff4757;
+        }
+
+        .netflix-box {
+            background: #141414;
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        .movie-card {
+            background: #222;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+            display: none;
+        }
+
+        video {
+            width: 100%;
+            max-height: 180px;
+            display: block;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
+            margin-top: 8px;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-close {
+            background: #e50914;
+            margin-top: 4px;
+            padding: 5px;
+            font-size: 0.7rem;
+        }
+
+        .nav-back {
+            background: none;
+            border: none;
+            color: #ff4757;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+
+        /* --- STYLES ANIMASI PELUKAN BERULANG KALI (GIF STYLE KEYFRAMES) --- */
+        .hug-gif-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            margin: 15px 0 5px 0;
+            background: linear-gradient(180deg, #fff0f3 0%, #ffe3e8 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            border: 1px dashed #ff7eb3;
+        }
+
+        .hug-heart-gif {
+            position: absolute;
+            top: 12px;
+            font-size: 1.8rem;
+            animation: gifHeart 3s infinite ease-in-out;
+        }
+
+        @keyframes gifHeart {
+            0%, 25% { opacity: 0; transform: scale(0.2); }
+            40%, 80% { opacity: 1; transform: scale(1.3); }
+            95%, 100% { opacity: 0; transform: scale(0.2); }
+        }
+
+        .person-gif {
+            position: absolute;
+            bottom: 12px;
+            width: 58px;
+            height: 115px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .boy-gif {
+            left: 10%;
+            animation: moveBoy 3s infinite ease-in-out;
+            z-index: 3;
+        }
+
+        .girl-gif {
+            right: 10%;
+            animation: moveGirl 3s infinite ease-in-out;
+            z-index: 4;
+        }
+
+        /* KEYFRAMES PERGERAKAN BERULANG (GIF LOOP) */
+        @keyframes moveBoy {
+            0% { left: 10%; }
+            35%, 80% { left: calc(50% - 28px); }
+            95%, 100% { left: 10%; }
+        }
+
+        @keyframes moveGirl {
+            0% { right: 10%; }
+            35%, 80% { right: calc(50% - 28px); }
+            95%, 100% { right: 10%; }
+        }
+
+        /* Elemen Tubuh Karakter */
+        .head-gif {
+            width: 32px;
+            height: 32px;
+            background: #ffdbac;
+            border-radius: 50%;
+            position: relative;
+            border: 2px solid #555;
+            z-index: 3;
+        }
+
+        .hair-boy-gif {
+            position: absolute;
+            top: -3px;
+            left: -2px;
+            width: 34px;
+            height: 16px;
+            background: #4a2e2b;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .hair-girl-gif {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 38px;
+            height: 38px;
+            background: #2c1d11;
+            border-radius: 50% 50% 20% 20%;
+        }
+
+        .face-gif {
+            position: absolute;
+            bottom: 4px;
+            width: 100%;
+            display: flex;
+            justify-content: space-evenly;
+            font-size: 8px;
+        }
+
+        .body-shirt-gif {
+            width: 36px;
+            height: 44px;
+            margin-top: -2px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            z-index: 2;
+            border: 2px solid #555;
+        }
+
+        .boy-gif .body-shirt-gif { background: #4a90e2; }
+        .girl-gif .body-shirt-gif { background: #ff6b81; }
+
+        .arm-gif {
+            position: absolute;
+            width: 8px;
+            height: 34px;
+            background: #ffdbac;
+            border: 1.5px solid #555;
+            border-radius: 4px;
+            top: 2px;
+        }
+
+        .boy-gif .arm-left-gif { left: -7px; }
+        .boy-gif .arm-right-gif {
+            right: -7px;
+            transform-origin: top center;
+            animation: armHugBoy 3s infinite ease-in-out;
+        }
+
+        .girl-gif .arm-left-gif {
+            left: -7px;
+            transform-origin: top center;
+            animation: armHugGirl 3s infinite ease-in-out;
+        }
+        .girl-gif .arm-right-gif { right: -7px; }
+
+        /* KEYFRAMES GERAKAN TANGAN MERANGKUL BERULANG */
+        @keyframes armHugBoy {
+            0%, 25% { transform: rotate(0deg); }
+            38%, 80% { transform: rotate(-110deg) translateY(-2px); height: 38px; z-index: 5; }
+            95%, 100% { transform: rotate(0deg); }
+        }
+
+        @keyframes armHugGirl {
+            0%, 25% { transform: rotate(0deg); }
+            38%, 80% { transform: rotate(110deg) translateY(-2px); height: 38px; z-index: 5; }
+            95%, 100% { transform: rotate(0deg); }
+        }
+
+        .legs-gif {
+            display: flex;
+            justify-content: space-between;
+            width: 24px;
+            height: 32px;
+            z-index: 1;
+        }
+
+        .leg-gif {
+            width: 9px;
+            height: 100%;
+            background: #333;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .girl-gif .leg-gif { background: #ffb8c6; }
+    </style>
+</head>
+<body>
+
+    <!-- BG AUDIO MENGGUNAKAN FILE MUSIKKAMU -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="musikqes.mpeg" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+
+        <!-- PAGE 0: LOGIN USERNAME & PASSWORD -->
+        <div class="page active" id="pageLogin">
+            <h1>Halo, qes! ❤️</h1>
+            <p>Masukkan kunci rahasia untuk membuka perjalanan spesial kamu!</p>
+
+            <div class="login-box">
+                <input type="text" id="usernameInput" class="input-field" placeholder="Username" autocomplete="off">
+                <input type="password" id="passwordInput" class="input-field" placeholder="Password">
+                <p id="loginError" style="color:#ff4757; font-size:0.75rem; display:none; margin-top:4px;">Username atau Password salah ya!</p>
+                <button class="btn" onclick="checkLogin()" style="margin-top:10px;">Masuk Aplikasi 🔑</button>
+            </div>
+        </div>
+
+        <!-- PAGE COVER: SAMPUL UTAMA -->
+        <div class="page" id="pageCover">
+            <h1>Petualangan Qes! 🗺️❤️</h1>
+            <p>Selamat datang di journey spesial penyemangat UTS Qesar heheheh!</p>
+
+            <div style="font-size: 3.5rem; text-align:center; margin: 10px 0;">✨🎓</div>
+
+            <div class="reminder-box">
+                📌 <strong>Cara Bermain:</strong> Qes pokokknya harus selesaikan tantangan di setiap titik level di peta ya, biar bisa membuka level selanjutnya sampai ke puncak okeiiii!
+            </div>
+
+            <button class="btn" onclick="startJourney()">Mulai Petualangan ➔</button>
+        </div>
+
+        <!-- PETA UTAMA GAME -->
+        <div class="page" id="pageMap">
+            <h2>🗺️ Peta Petualangan UTS</h2>
+            <p style="margin-bottom:5px;">Klik lingkaran level yang terbuka untuk bermain!</p>
+
+            <div class="game-map-container">
+                <svg class="map-path-svg">
+                    <path d="M 60 360 C 200 360, 270 310, 270 295 C 270 260, 70 230, 70 210 C 70 170, 270 145, 270 125 C 270 80, 70 60, 70 45 C 70 25, 200 25, 200 25" 
+                          fill="none" stroke="#ff7eb3" stroke-width="7" stroke-dasharray="8 6" stroke-linecap="round"/>
+                </svg>
+
+                <div class="level-node unlocked" id="node-1" onclick="openLevel(1)">1</div>
+                <div class="level-node locked" id="node-2" onclick="openLevel(2)">🔒</div>
+                <div class="level-node locked" id="node-3" onclick="openLevel(3)">🔒</div>
+                <div class="level-node locked" id="node-4" onclick="openLevel(4)">🔒</div>
+                <div class="level-node locked" id="node-5" onclick="openLevel(5)">🔒</div>
+                <div class="level-node locked" id="node-6" onclick="openLevel(6)">👑</div>
+            </div>
+
+            <p style="font-size: 0.75rem; color: #888;">Level 1 ➔ Level 6 Puncak</p>
+        </div>
+
+        <!-- LEVEL 1 -->
+        <div class="page" id="page1">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 1</span></div>
+            <h2>📝 Kuis Ujian Kejujuran (<span id="quizProgressNum">1</span>/3)</h2>
+
+            <div class="reminder-box">
+                💡 <strong>Reminder Level 1:</strong> Apapun rumitnya soal UTS nanti, ingat kalau kamu itu bisa & udah berusaha semaksimal mungkin! Selesaikan 3 pertanyaan kuis ini.
+            </div>
+
+            <p id="quizQuestionText"><strong>Pertanyaan 1:</strong> Siapa sosok yang paling ica kangenin tiap hari?</p>
+
+            <div class="quiz-grid">
+                <div class="quiz-card" onclick="chooseQuizAnswer('A')">
+                    <div class="quiz-img-container">
+                        <img src="qesar1.jpeg" class="quiz-img" alt="Foto Qesar 1">
+                    </div>
+                    <div class="quiz-label">A. Qesar</div>
+                </div>
+                <div class="quiz-card" onclick="chooseQuizAnswer('B')">
+                    <div class="quiz-img-container">
+                        <img src="qesar2.jpeg" class="quiz-img" alt="Foto Qesar 2">
+                    </div>
+                    <div class="quiz-label">B. Qesar</div>
+                </div>
+                <div class="quiz-card" onclick="chooseQuizAnswer('C')">
+                    <div class="quiz-img-container">
+                        <img src="qesar3.jpeg" class="quiz-img" alt="Foto Qesar 3">
+                    </div>
+                    <div class="quiz-label">C. Qesar</div>
+                </div>
+            </div>
+
+            <p id="quizFeedback" style="color: #2e7d32; font-weight: 600; text-align:center; display: none; margin-top:5px;"></p>
+            <button class="btn" id="btnNextQuestion" style="display:none;" onclick="nextQuizQuestion()">Pertanyaan Selanjutnya ➔</button>
+            <button class="btn" id="btnLevel1" disabled style="display:none;" onclick="completeLevel(1, 2)">Selesai & Buka Level 2 ➔</button>
+        </div>
+
+        <!-- LEVEL 2 -->
+        <div class="page" id="page2">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 2</span></div>
+            <h2>🧩 Memory Match Cinta</h2>
+
+            <div class="reminder-box">
+                💡 <strong>Reminder Level 2:</strong> Nanti pada saat qes UTS jangan terburu-buru dan tetap tenang pas ngerjain soal ya. Pokoknya kerjain satu per satu dengan teliti!
+            </div>
+
+            <p><strong>Tantangan Game:</strong> Cocokkan 3 pasang simbol yang pas!</p>
+
+            <div class="memory-grid" id="memoryGrid"></div>
+
+            <button class="btn" id="btnLevel2" disabled onclick="completeLevel(2, 3)">🔒 Cocokkan Semua Kartu</button>
+        </div>
+
+        <!-- LEVEL 3 -->
+        <div class="page" id="page3">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 3</span></div>
+            <h2>📖 Kitab Suci Alkitab</h2>
+
+            <div class="reminder-box">
+                💡 <strong>Reminder Level 3:</strong> Pokoknya qes harus Ingat untuk selalu mengandalkan Tuhan sebelum dan sesudah membuka lembar soal ujian!
+            </div>
+
+            <p><strong>Tantangan Alkitab:</strong> Klik Buku Alkitab di bawah untuk membukanya!</p>
+
+            <div class="book-container" onclick="openBibleBook()">
+                <div class="book" id="bibleBook">
+                    <div class="book-cover" id="bookCover">
+                        <div style="font-size:3rem;">✝️</div>
+                        <div style="font-weight:700; font-size:1.1rem; margin-top:4px;">ALKITAB</div>
+                        <p style="color:#ffd700; font-size:0.75rem; margin-top:6px;">[ Klik untuk Buka ]</p>
+                    </div>
+                    <div class="book-inside" id="bookInside" style="display:none;">
+                        <div class="book-text">
+                            "Segala perkara dapat kutanggung di dalam Dia yang memberi kekuatan kepadaku."
+                        </div>
+                        <div class="book-ref">— Filipi 4:13 —</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="btnLevel3" disabled onclick="completeLevel(3, 4)">🔒 Buka Buku Alkitab Dulu</button>
+        </div>
+
+        <!-- LEVEL 4 -->
+        <div class="page" id="page4">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 4</span></div>
+            <h2>🎙 Rekaman Doa Spesial</h2>
+
+            <div class="reminder-box">
+                💡 <strong>Reminder Level 4:</strong> Dengarin rekaman Doa dari ica ini ya!
+            </div>
+
+            <p><strong>Tantangan Doa:</strong> Putar dan dengarkan rekaman doa spesial ini sampai selesai dan jangan lupa lipat dan tutp mata yaa!</p>
+
+            <div style="background:#fff0f3; padding:12px; border-radius:12px; margin:15px 0;">
+                <audio controls id="audioDoa" style="width:100%" onplay="onMediaPlay()" onpause="onMediaPauseEnd()" onended="onAudioDoaEnded()">
+                    <source src="untukqes.mp4">
+                </audio>
+            </div>
+
+            <button class="btn" id="btnLevel4" disabled onclick="completeLevel(4, 5)">🔒 Dengarkan Doa Sampai Selesai</button>
+        </div>
+
+        <!-- LEVEL 5 -->
+        <div class="page" id="page5">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 5</span></div>
+            <h2>🎬 Qes Netflix Cinema</h2>
+
+            <div class="reminder-box">
+                💡 <strong>Reminder Level 5:</strong> Kalau capek belajar, istirahat sejenak ya qesss. Tonton video hiburan spesial ini yaa!
+            </div>
+
+            <p><strong>Tantangan Cinema:</strong> Tonton 3 episode video berikut!</p>
+
+            <div class="netflix-box">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="color:#e50914; font-weight:900; font-size:0.85rem;">NETFLIX</span>
+                    <span id="videoProgress" style="font-size:0.75rem; color:#aaa;">0/3 Tonton</span>
+                </div>
+
+                <div class="movie-card" onclick="playVideo(1)">
+                    <span style="font-size:0.78rem;">▶ Ep 1: Video gemas</span>
+                    <span id="vStatus1" style="font-size:0.7rem; color:#888;">Belum</span>
+                </div>
+                <div class="movie-card" onclick="playVideo(2)">
+                    <span style="font-size:0.78rem;">▶ Ep 2: Video gemas kuadrat</span>
+                    <span id="vStatus2" style="font-size:0.7rem; color:#888;">Belum</span>
+                </div>
+                <div class="movie-card" onclick="playVideo(3)">
+                    <span style="font-size:0.78rem;">▶ Ep 3: Video gemas tak hingga hehehe</span>
+                    <span id="vStatus3" style="font-size:0.7rem; color:#888;">Belum</span>
+                </div>
+
+                <div class="video-wrapper" id="videoWrapper">
+                    <video controls id="mainVideoPlayer" onplay="onMediaPlay()" onpause="onMediaPauseEnd()" onended="onVideoEnded()">
+                        <source id="videoSource" src="" type="video/mp4">
+                    </video>
+                    <button class="btn btn-close" onclick="closeVideo()">✖ Tutup Video</button>
+                </div>
+            </div>
+
+            <button class="btn" id="btnLevel5" disabled onclick="completeLevel(5, 6)">🔒 Tonton Semua Episode</button>
+        </div>
+
+        <!-- LEVEL 6 -->
+        <div class="page" id="page6">
+            <button class="nav-back" onclick="goToMap()">⬅ Kembali ke Peta</button>
+            <div style="text-align:center;"><span class="badge-level">LEVEL 6 - PUNCAK</span></div>
+            <h1>Good Luck UTS-nya Qes! 🎓✨</h1>
+
+            <div class="reminder-box">
+                🔑 <strong>Misi Terakhir:</strong> Surat cinta penyemangat UTS masih terkunci! Pilih salah satu kotak harta di bawah untuk menemukan Kunci Emasnya!
+            </div>
+
+            <div class="chest-grid" id="chestGrid">
+                <div class="chest-card" onclick="openChest(1)">🎁</div>
+                <div class="chest-card" onclick="openChest(2)">🎁</div>
+                <div class="chest-card" onclick="openChest(3)">🎁</div>
+            </div>
+
+            <p id="chestMessage" style="font-weight:600; color:#ff4757; text-align:center;"></p>
+
+            <div id="letterSection" style="display:none; margin-top:15px; background:#fff0f3; border:2px solid #ff4757; border-radius:16px; padding:15px; text-align:left;">
+                <p style="font-weight:700; color:#ff4757; margin-bottom:6px;"> hai qesssss, ❤️</p>
+                <p style="color:#444; font-size:0.82rem; line-height:1.6;">
+                    Semangat ya buat UTS kali ini! Ica percaya pasti qes akan belajar dengan sungguh-sungguh dan persiapin semuanya dengan baik. Tetap tenang, fokus, dan percaya sama kemampuan kamu sendiri ya qes.
+                    <br><br>
+                    Jangan lupa berdoa sebelum mulai pengerjaan soalnya. Apapun hasilnya nanti, aku bakal selalu bangga banget sama kamu, always bangga soalnya. You can do it, my hero! 🌟💪
+                </p>
+
+                <!-- ANIMASI PELUKAN BERULANG KALI (GIF STYLE) -->
+                <div class="hug-gif-container">
+                    <div class="hug-heart-gif">💖</div>
+                    
+                    <!-- Karakter Cowok Loop -->
+                    <div class="person-gif boy-gif">
+                        <div class="head-gif">
+                            <div class="hair-boy-gif"></div>
+                            <div class="face-gif"><span>•</span><span>•</span></div>
+                        </div>
+                        <div class="body-shirt-gif">
+                            <div class="arm-gif arm-left-gif"></div>
+                            <div class="arm-gif arm-right-gif"></div>
+                        </div>
+                        <div class="legs-gif">
+                            <div class="leg-gif"></div>
+                            <div class="leg-gif"></div>
+                        </div>
+                    </div>
+
+                    <!-- Karakter Cewek Loop -->
+                    <div class="person-gif girl-gif">
+                        <div class="head-gif">
+                            <div class="hair-girl-gif"></div>
+                            <div class="face-gif"><span>•</span><span>•</span></div>
+                        </div>
+                        <div class="body-shirt-gif">
+                            <div class="arm-gif arm-left-gif"></div>
+                            <div class="arm-gif arm-right-gif"></div>
+                        </div>
+                        <div class="legs-gif">
+                            <div class="leg-gif"></div>
+                            <div class="leg-gif"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="triggerLoveConfetti()" style="margin-top:8px;">💖 Peluk Erat & Rayakan! 💖</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.3;
+
+        function playAudioSafely() {
+            bgMusic.play().catch(error => {
+                console.log("Autoplay ditahan browser, menunggu klik pengguna.", error);
+            });
+        }
+
+        let maxUnlockedLevel = 1;
+
+        function checkLogin() {
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            
+            if (user === "qesca" && pass === "2026") {
+                document.getElementById('loginError').style.display = 'none';
+                playAudioSafely();
+                showPage('pageCover');
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function startJourney() {
+            playAudioSafely();
+            showPage('pageMap');
+        }
+
+        function goToMap() {
+            playAudioSafely();
+            showPage('pageMap');
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function openLevel(lvl) {
+            if (lvl <= maxUnlockedLevel) {
+                playAudioSafely();
+                showPage(`page${lvl}`);
+                if (lvl === 6) triggerLoveConfetti();
+            }
+        }
+
+        function completeLevel(currentLvl, nextLvl) {
+            playAudioSafely();
+            
+            const currentNode = document.getElementById(`node-${currentLvl}`);
+            currentNode.classList.remove('unlocked');
+            currentNode.classList.add('completed');
+            currentNode.innerText = '✓';
+
+            if (nextLvl > maxUnlockedLevel) {
+                maxUnlockedLevel = nextLvl;
+                const nextNode = document.getElementById(`node-${nextLvl}`);
+                nextNode.classList.remove('locked');
+                nextNode.classList.add('unlocked');
+                if (nextLvl !== 6) nextNode.innerText = nextLvl;
+            }
+
+            goToMap();
+        }
+
+        function onMediaPlay() { bgMusic.pause(); }
+        function onMediaPauseEnd() { playAudioSafely(); }
+
+        let currentQuizStep = 1;
+        const quizQuestions = [
+            "Pertanyaan 1: Siapa sosok yang paling ica kangenin tiap hari?",
+            "Pertanyaan 2: Siapa orang paling ganteng & manis yang bakal lulus UTS dengan nilai terbaik?",
+            "Pertanyaan 3: Siapa pemilik senyuman manis yang bikin ica selalu happy?"
+        ];
+
+        function chooseQuizAnswer(option) {
+            playAudioSafely();
+            const feedback = document.getElementById('quizFeedback');
+            feedback.style.display = 'block';
+            feedback.innerText = `Jawaban (${option}) BENAR 100%! Pilihan tepat! 🎉`;
+
+            if (currentQuizStep < 3) {
+                document.getElementById('btnNextQuestion').style.display = 'block';
+            } else {
+                document.getElementById('btnNextQuestion').style.display = 'none';
+                document.getElementById('btnLevel1').style.display = 'block';
+                document.getElementById('btnLevel1').disabled = false;
+            }
+            triggerMiniConfetti();
+        }
+
+        function nextQuizQuestion() {
+            playAudioSafely();
+            currentQuizStep++;
+            document.getElementById('quizProgressNum').innerText = currentQuizStep;
+            document.getElementById('quizQuestionText').innerHTML = `<strong>${quizQuestions[currentQuizStep - 1]}</strong>`;
+            document.getElementById('quizFeedback').style.display = 'none';
+            document.getElementById('btnNextQuestion').style.display = 'none';
+        }
+
+        const memoryIcons = ['💖', '💖', '🍿', '🍿', '🎓', '🎓'];
+        let shuffledIcons = memoryIcons.sort(() => 0.5 - Math.random());
+        let selectedCards = [];
+        let matchedPairs = 0;
+
+        function initMemoryGame() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            shuffledIcons.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.innerText = '?';
+                card.dataset.icon = icon;
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            playAudioSafely();
+            if (selectedCards.length < 2 && !card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                card.innerText = card.dataset.icon;
+                selectedCards.push(card);
+
+                if (selectedCards.length === 2) {
+                    setTimeout(checkMatch, 500);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [c1, c2] = selectedCards;
+            if (c1.dataset.icon === c2.dataset.icon) {
+                matchedPairs++;
+                triggerMiniConfetti();
+                if (matchedPairs === 3) {
+                    const btn = document.getElementById('btnLevel2');
+                    btn.disabled = false;
+                    btn.innerText = 'Selesai & Buka Level 3 ➔';
+                }
+            } else {
+                c1.classList.remove('flipped');
+                c1.innerText = '?';
+                c2.classList.remove('flipped');
+                c2.innerText = '?';
+            }
+            selectedCards = [];
+        }
+
+        initMemoryGame();
+
+        function openBibleBook() {
+            playAudioSafely();
+            document.getElementById('bookCover').style.display = 'none';
+            document.getElementById('bookInside').style.display = 'flex';
+            
+            const btn = document.getElementById('btnLevel3');
+            btn.disabled = false;
+            btn.innerText = 'Selesai & Buka Level 4 ➔';
+            triggerMiniConfetti();
+        }
+
+        function onAudioDoaEnded() {
+            onMediaPauseEnd();
+            const btn = document.getElementById('btnLevel4');
+            btn.disabled = false;
+            btn.innerText = 'Selesai & Buka Level 5 ➔';
+            triggerMiniConfetti();
+        }
+
+        let currentVideoIdx = 0;
+        let watchedVideos = [false, false, false];
+
+        function playVideo(index) {
+            currentVideoIdx = index;
+            const wrapper = document.getElementById('videoWrapper');
+            const player = document.getElementById('mainVideoPlayer');
+            const src = document.getElementById('videoSource');
+
+            if(index === 1) src.src = 'raja.mp4';
+            else if(index === 2) src.src = 'pandia.mp4';
+            else if(index === 3) src.src = 'love.mp4';
+
+            wrapper.style.display = 'block';
+            player.load();
+            player.play();
+        }
+
+        function onVideoEnded() {
+            onMediaPauseEnd();
+            if(currentVideoIdx > 0) {
+                watchedVideos[currentVideoIdx - 1] = true;
+                document.getElementById(`vStatus${currentVideoIdx}`).innerText = '✓ Selesai';
+                document.getElementById(`vStatus${currentVideoIdx}`).style.color = '#2e7d32';
+                
+                const count = watchedVideos.filter(Boolean).length;
+                document.getElementById('videoProgress').innerText = `${count}/3 Tonton`;
+
+                if(count === 3) {
+                    const btn = document.getElementById('btnLevel5');
+                    btn.disabled = false;
+                    btn.innerText = 'Buka Puncak Level 6 ➔';
+                    triggerMiniConfetti();
+                }
+            }
+        }
+
+        function closeVideo() {
+            document.getElementById('mainVideoPlayer').pause();
+            document.getElementById('videoWrapper').style.display = 'none';
+            onMediaPauseEnd();
+        }
+
+        const keyChestIndex = Math.floor(Math.random() * 3) + 1;
+        let keyFound = false;
+
+        function openChest(index) {
+            playAudioSafely();
+            if (keyFound) return;
+
+            const cards = document.querySelectorAll('.chest-card');
+            const msg = document.getElementById('chestMessage');
+
+            if (index === keyChestIndex) {
+                cards[index - 1].innerText = '🔑';
+                msg.innerText = 'Hore! Kunci Emas berhasil ditemukan! Surat Terbuka! 🎉';
+                keyFound = true;
+                
+                // Tampilkan Surat
+                document.getElementById('letterSection').style.display = 'block';
+                triggerLoveConfetti();
+            } else {
+                cards[index - 1].innerText = '❌';
+                msg.innerText = 'Coba pilih kotak yang lain yaa!';
+            }
+        }
+
+        function triggerLoveConfetti() {
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }
+
+        function triggerMiniConfetti() {
+            confetti({ particleCount: 25, spread: 50, origin: { y: 0.7 } });
+        }
+    </script>
+</body>
+</html>
